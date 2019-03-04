@@ -2,10 +2,8 @@
 
 T-Hangman is a Terminal based Hangman game for Linux written with Ruby 2.6.0+
 
-[!alt text](https://raw.githubusercontent.com/Souravgoswami/t-hangman/master/Screenshots/Screenshot%20from%202019-03-04%2020-00-43.png)
-
-
-[!alt text](https://raw.githubusercontent.com/Souravgoswami/t-hangman/master/Screenshots/Screenshot%20from%202019-03-04%2020-01-21.png)
+![alt text](https://github.com/Souravgoswami/t-hangman/blob/master/Screenshots/Screenshot%20from%202019-03-04%2020-01-21.png)
+![alt text](https://github.com/Souravgoswami/t-hangman/blob/master/Screenshots/Screenshot%20from%202019-03-04%2020-01-21.png)
 
 How to get T-Hangman Running:
     1. Download the wordlist and the Ruby script. Keep them together.
