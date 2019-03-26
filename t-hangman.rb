@@ -1,6 +1,8 @@
-#!/usr/bin/ruby
+#!/usr/bin/env ruby
 require 'io/console'
 require 'timeout'
+
+VERSION = '2.0 (2019-03-26)'
 
 class String
 	@@colours = [(40..45)].map(&:to_a)
@@ -25,7 +27,105 @@ class String
 	def find_index(character) chars.map.with_index { |x, i| i if x == character }.compact end
 end
 
+DANCE = <<~'EOF'.split("<%>")
+
+		               |  O  |
+		                \ + /
+		                  |
+		                 / \
+		                 | |
+				<%>
+		              __  O   __
+		                \ + /
+			          /
+		               __/ \
+		                   |
+				<%>
+		             |  O  |
+		              \ + /
+		                -
+		               / \__
+		               |
+				<%>
+		             |  O  |
+		              \ + /
+		                \
+		               / \
+		               | |
+EOF
+
+def show_version
+	message = "T-Hangman #{VERSION}"
+	print ' ' * (STDOUT.winsize[1] / 2 - message.length / 2) + message.colourize([92, 129, 164, 198, 203, 208, 184, 154]) + "\n"
+	dance = DANCE.sample.rstrip + "\n"
+	dance_length = dance.each_line.map(&:length).max / 2
+	print dance.each_line.map { |el| ' ' * (STDOUT.winsize[1] / 2 - dance_length) + el }[1..-1].join.colourize
+end
+
+if ARGV.include?('--version') || ARGV.include?('-v')
+	show_version
+	exit
+
+elsif ARGV.include?('--help') || ARGV.include?('-h')
+	show_version
+	colour = [196, 197, 198, 199, 200, 201]
+
+	puts <<~'EOF'.each_line.map { |el| el.colourize(colour.rotate!(-1)) }.join
+		T-Hangman is a terminal based hangman game!
+		You have to guess the words. You can take help, reveal words, and enjoy!
+
+		Arguments:
+			T-Hangman takes two arguments:
+				--help or -h		This help screen.
+				--version or -v		Shows the version information.
+	EOF
+	exit
+
+elsif ARGV.any?
+	puts <<~EOF.each_line.map { |el| el.colourize }.join
+		Unknown Argument!
+		Skipping Bad Argument and Entering the Game in 3 Seconds.
+		Press ^C to exit. Press Enter to Continue.
+		[Too See Available Arguments, Please run `#{__FILE__} --help']
+	EOF
+
+	counter = time = Time.new.strftime('%s').to_i
+	counter_2, counter_3 = 3, 0
+	chars, colour = '|/-\\', [92, 129, 164, 198, 203, 208, 184, 154]
+
+	begin
+		loop do
+			time_now = Time.new.strftime('%s').to_i
+
+			if time_now - time < 3
+				if time_now - counter == 1
+					counter_2 -= 1
+					counter = time_now
+				end
+
+				counter_3 += 2 if counter_3 < (STDOUT.winsize[1] / counter_2 - 2)
+				colour.rotate!
+
+				chars.each_char do |c|
+					message = '=' * (counter_3)
+					print("[#{message.colourize(colour)}#{c.colourize(colour)}#{' ' * (STDOUT.winsize[1].to_i - message.length - 4)}]\r")
+					sleep 0.0125
+				end
+			else
+				break
+			end
+		end
+
+	rescue Interrupt, SystemExit
+		puts
+		exit! 1
+	# rescue Exception
+		# exit! 2
+	end
+end
+
 $coins, $level = 50, 1
+
 def main(init=false)
 	wordfile = 'words'
 	words = IO.readlines(wordfile).map(&:upcase).reject { |w| w =~ /[^A-Z\n]/ || w.length < 3 || w.length > 11 }.map(&:chomp)
@@ -56,7 +156,7 @@ def main(init=false)
 				throw :all_the_best! if Time.new.strftime('%s').to_i - autostart_timer > 5
 				print (' ' * (STDOUT.winsize[1] / 2 - message.length.next / 2) + message + (5 - (Time.new.strftime('%s').to_i - autostart_timer)).to_s).colourize(message_colour.rotate!)
 				STDIN.gets
-				throw :all_the_best!
+				throw :good_luck!
 			end
 		rescue UncaughtThrowError
 			break
@@ -211,54 +311,18 @@ end
 
 
 def won(word)
-	width, val = STDOUT.winsize[1] / 2, ''
-
 	message, msg = "Yay! You are right! The word was: #{word}", 'Press Enter/Return to Go Back and Play Again!'
 	$coins, colour = $coins + 5, [154, 184, 208, 203, 198, 164, 129, 92]
-	 $level = $level.next if $level < 9
+	$level = $level.next if $level < 9
 
 	msg_colour = colour.dup.reverse
 
-	val = [
-		"
-	       |  O  |
-		\\ + /
-		  |
-		 / \\
-		 | |
-		",
-
-		"
-	      __  O   __
-		\\ + /
-		  /
-	       __/ \\
-		   |
-		",
-
-		"
-	       |  O   |
-		\\ + /
-		  -
-		 / \\__
-		 |
-		",
-
-		"
-	       |  O  |
-		\\ + /
-		  \\
-		 / \\
-		 | |
-		",
-		].map { |x| x.each_line.map { |y| ' ' * (width / 2) + y }.join }
-
 	loop do
-		val.each do |x|
+		DANCE.each do |x|
 			width = STDOUT.winsize[1] / 2
 			print "\e[2J\e[H\e[3J" + ' ' * (STDOUT.winsize[1] / 2)
 
-			puts x.colourize(colour.rotate!(-1))
+			puts x.each_line.map { |el| ' ' * width + el }.join.colourize(colour.rotate!(-1))
 			puts ' ' * (width - message.length / 2).abs + "#{message.colourize(colour)}\e[0m"
 			puts(' ' * (width - msg.length / 2).abs + msg.colourize(msg_colour.rotate!))
 
@@ -307,9 +371,10 @@ def game_over(word='')
 
 	message2, message2_colour = 'No Coins Left :(', message_colour.clone
 	message3 = 'Press Return/Enter/^C to Exit'
+
 	loop do
 		print "\e[2J\e[H\e[3J" + "\n" * (STDOUT.winsize[0] / 2 - 2)
-		puts ' ' * (STDOUT.winsize[1] / 2 - message.length / 2) + "\e[5m" + message.colourize(message_colour.rotate!())
+		puts ' ' * (STDOUT.winsize[1] / 2 - message.length / 2) + "\e[5m" + message.colourize(message_colour.rotate!)
 		puts ' ' * (STDOUT.winsize[1] / 2 - message2.length / 2) + message2.colourize(message2_colour.rotate!(-1))
 		puts ' ' * (STDOUT.winsize[1] / 2 - message3.length / 2) + message3.colourize(message_colour)
 
