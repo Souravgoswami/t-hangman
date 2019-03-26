@@ -210,7 +210,7 @@ def main(init=false)
 		print "\e[3J\e[H\e[2J"
 
 		taken_flag = false
-		terminal_height, terminal_width = STDOUT.winsize
+		terminal_width = STDOUT.winsize[1]
 
 		if word.include?(typed_word.scan(/[A-Z]/).join)
 			word.find_index(typed_word).each do |w|
