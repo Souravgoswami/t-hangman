@@ -85,7 +85,7 @@ elsif ARGV.any?
 	puts <<~EOF.each_line.map { |el| el.colourize }.join
 		Unknown Argument!
 		Skipping Bad Argument and Entering the Game in 3 Seconds.
-		Press ^C to exit. Press Enter to Continue.
+		Press ^C to exit.
 		[Too See Available Arguments, Please run `#{__FILE__} --help']
 	EOF
 
