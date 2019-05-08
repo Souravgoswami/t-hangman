@@ -11,13 +11,13 @@ T-Hangman is a Terminal based Hangman game for Linux written with Ruby 2.6.0+
 \* *T-Hangman is currently 3.0 - which has emoji. If your terminal doesn't support emoji, please use the older version which is no longer supported.*
 
 ## How to Play 🎮
-- You will be asked random English words. You have to guess them right.
+- You will be asked random English words. You have to guess them right 😎
 
-- If you typed the correct word, t-hangman will dance!
+- If you typed the correct word, t-hangman will dance 🕺
 
-- T-Hangman is always pessimist. He will hung himself if you've typed 10 wrong letters.
+- T-Hangman is always pessimist. He will hung himself if you've typed 10 wrong letters 😱
 
-- Typing wrong letters will reduce your $$ Coins. If your coins get to 0, you have to restart the game :(
+- Typing wrong letters will reduce your $$ Coins. If your coins get to 0, you have to restart the game 😰
 
 - Good luck!!
 
