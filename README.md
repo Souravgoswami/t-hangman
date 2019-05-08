@@ -5,8 +5,10 @@ T-Hangman is a Terminal based Hangman game for Linux written with Ruby 2.6.0+
 ![alt text](https://github.com/Souravgoswami/t-hangman/blob/master/Screenshots/Screenshot%20from%202019-03-04%2020-00-43.png)
 
 ##  How to Get T-Hangman Running 🏃
-+ Download the wordlist and the Ruby script. Keep them together.
++ Download the wordlist and the Ruby script*. Keep them together.
 + Run the Ruby script with Ruby 2.6.0+ or make it executable and the #! line will use /usr/bin/ruby path.
+
+\* *T-Hangman is currently 3.0 - which has emoji. If your terminal doesn't support emoji, please use the older version which is no longer supported.*
 
 ## How to Play 🎮
 - You will be asked random English words. You have to guess them right.
