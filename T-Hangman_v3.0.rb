@@ -2,9 +2,8 @@
 %w(io/console timeout).each { |g| require(g) }
 
 STDOUT.sync = STDIN.sync = true
-VERSION = '2.0 (2019-03-26)'
+VERSION = '3.0 (2019-05-08)'
 PATH = File.dirname(__FILE__)
-print "\e[?25l"
 
 class String
 	@@colours = [(34..39), (208..213), (70..75), (136..140), (214..219), (40..45),
@@ -30,6 +29,13 @@ class String
 
 	def find_index(character) chars.map.with_index { |x, i| i if x == character }.compact end
 end
+
+unless STDIN.tty? && STDOUT.tty?
+	puts 'No Terminal Found.'.colourize
+	puts "Please Run #{File.basename(__FILE__)} in a Terminal.".colourize
+	exit! 0
+end
+
 
 DANCE = <<~'EOF'.split("<...>")
 
@@ -63,7 +69,7 @@ def show_version
 	print ' ' * (STDOUT.winsize[1] / 2 - message.length / 2) + message.colourize([92, 129, 164, 198, 203, 208, 184, 154]) + "\n"
 	dance = DANCE.sample.rstrip + "\n"
 	dance_length = dance.each_line.map(&:length).max / 2
-	print dance.each_line.map { |el| ' ' * (STDOUT.winsize[1] / 2 - dance_length) + el }[1..-1].join.colourize
+	print dance.each_line.map { |el| ' ' * (STDOUT.winsize[1] / 2 - dance_length) + el }[1..-1].join.colourize((70..75).to_a)
 end
 
 if ARGV.include?('--version') || ARGV.include?('-v')
@@ -72,9 +78,8 @@ if ARGV.include?('--version') || ARGV.include?('-v')
 
 elsif ARGV.include?('--help') || ARGV.include?('-h')
 	show_version
-	colour = [196, 197, 198, 199, 200, 201]
 
-	puts <<~'EOF'.each_line.map { |el| el.colourize(colour.rotate!(-1)) }.join
+	puts <<~'EOF'.colourize
 		T-Hangman is a terminal based hangman game!
 		You have to guess the words. You can take help, reveal words, and enjoy!
 
@@ -127,11 +132,11 @@ elsif ARGV.any?
 	end
 end
 
+print "\e[?25l"
 $coins, $level = 50, 1
 
 def main(init = false)
-	wordfile = 'words'
-	words = IO.readlines(File.join(PATH, wordfile)).map(&:upcase).reject { |w| w =~ /[^A-Z\n]/ || w.length < 3 || w.length > 11 }.map(&:strip)
+	words = IO.readlines(File.join(PATH, 'words')).map(&:upcase).reject { |w| w =~ /[^A-Z\n]/ || w.length < 3 || w.length > 11 }.map(&:strip)
 	word = words.select do |x|
 		case $level
 			when 1 then (3..4).cover?(x.length)
@@ -146,7 +151,7 @@ def main(init = false)
 		end
 	end.sample
 
-	wish, wish_colour = 'Good luck, Press Enter to begin!', [63, 33, 39, 44, 49, 83, 118]
+	wish, wish_colour = 'Good luck, Press Any Key to begin!', [63, 33, 39, 44, 49, 83, 118]
 	message, message_colour = 'Game autostarts in ', wish_colour.dup.reverse
 	autostart_timer = Time.new.strftime('%s').to_i
 
@@ -158,7 +163,7 @@ def main(init = false)
 			Timeout.timeout(0.05) do
 				throw :all_the_best! if Time.new.strftime('%s').to_i - autostart_timer > 5
 				print (' ' * (STDOUT.winsize[1] / 2 - message.length.next / 2).abs + message + (5 - (Time.new.strftime('%s').to_i - autostart_timer)).to_s).colourize(message_colour.rotate!)
-				STDIN.gets
+				STDIN.getch
 				throw :good_luck!
 			end
 		rescue UncaughtThrowError
@@ -171,7 +176,7 @@ def main(init = false)
 	word.length./(2).times { question[rand(0...word.length)] = '_' }
 
 	typed_word = ''
-	wrong_count, remaining_lives = '', "\xe2\x99\xa5" * 10
+	wrong_count, remaining_lives = '', "\xe2\x99\xa5 " * 10
 	stroke = 0
 	mistaken_list = []
 	menu_colour, typed_colour = (34..39).to_a, [92, 129, 164, 198, 203, 208, 184, 154]
@@ -236,7 +241,7 @@ def main(init = false)
 		elsif !(typed_word.scan(/[^A-Z]/).any?)
 			unless mistaken_list.include?(typed_word)
 				wrong_count.concat("\xf0\x9f\x95\xb1 ")
-				remaining_lives = "\xe2\x99\xa5" * (10 - wrong_count.length / 2)
+				remaining_lives = "\xe2\x99\xa5 " * (10 - wrong_count.length / 2)
 				$coins -= 1
 				mistaken_list.push(typed_word)
 			end
@@ -244,7 +249,7 @@ def main(init = false)
 		end unless typed_word.empty?
 
 		col1 = ' ' * (terminal_width - "\xe2\x95\xa5 Lives: #{remaining_lives}\xe2\x9c\xaa Coins: #{$coins.to_s}".length).abs
-		col2 = ' ' * (terminal_width - " ⚔ Missed: #{wrong_count}\xe2\x98\x85 Level: #{$level}".length).abs
+		col2 = ' ' * (terminal_width - " \xe2\x9a\x94 Missed: #{wrong_count}\xe2\x98\x85 Level: #{$level}".length).abs
 
 		print "\e[5m" if wrong_count.length > 10
 		puts "#{"\xe2\x99\xa5 Lives:".colourize(menu_colour.rotate!(-1))} #{wrong_count.length > 10 ? "\e[5m" : ''}#{remaining_lives.colourize(lives_colour.rotate!(-1))}#{col1}#{"\xe2\x9c\xaa Coins: #{$coins}".colourize(menu_colour)}"
@@ -266,7 +271,7 @@ def main(init = false)
 
 		print "\n" * 2
 		puts "#{'Guess the word: '}#{question}".colourize(guess_colour.rotate!(-1))
-		puts "Typed::#{stroke}#{"::#{typed_word} has been already taken" if taken_flag}#{"::Already tried #{typed_word}" if mistake}> #{typed_word}".colourize(typed_colour.rotate!(-1))
+		puts "Typed::#{sprintf('%03d', stroke)}#{"::#{typed_word} has been already taken" if taken_flag}#{"::Already tried #{typed_word}" if mistake}> #{typed_word}".colourize(typed_colour.rotate!(-1))
 
 		won(word) if question == word
 		game_over(word) if $coins <= 0
@@ -305,8 +310,6 @@ def help(word, question)
 	else
 		puts "#{int_inp}::#{question[int_inp]} is already revealed. Nothing to do.".colourize(70..75)
 	end
-
-	question
 end
 
 def change_level
