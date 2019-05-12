@@ -15,7 +15,7 @@ class String
 		final_string = ''
 		colour = colour.to_a if colour.is_a?(Range)
 
-		index, colour_size = 0, colour.size
+		index, colour_size = 0, colour.size - 1
 		div = length / colour_size
 		div = 1 if div == 0
 
