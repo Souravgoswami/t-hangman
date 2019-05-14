@@ -10,6 +10,12 @@ T-Hangman is a Terminal based Hangman game for Linux written with Ruby 2.6.0+
 
 \* *T-Hangman is currently 3.0 - which has emoji. If your terminal doesn't support emoji, please use the older version which is no longer supported.*
 
+## Installation (Debian systems only):
++ Download the deb file ![here](https://github.com/Souravgoswami/t-hangman/blob/master/Debian/t-hangman-v3.0.deb?raw=true)
+* If you have **GDebi GTK** you can open the deb file with GDebi GTK and click on the Install package button give sudo password if you launched GDebi GTK without any root privilege. You can verify what's going to be installed.
+
+* If you **don't have GDebi GTK**, you can use `sudo gdebi <filename>` or use `sudo dpkg -i <filename>`. The file name will be t-hangman-v{version}.deb.
+
 ## How to Play 🎮
 - You will be asked random English words. You have to guess them right 😎
 
