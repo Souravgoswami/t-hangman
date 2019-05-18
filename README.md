@@ -33,4 +33,4 @@ T-Hangman is a Terminal based Hangman game for Linux written with Ruby 2.6.0+
 
 ## Bugs 🐞
 I have tested this on terminal emulators like gnome-terminal, xfce4-terminal, terminology - which works fine. Some terminals like cool-retro-term doesn't show all the texts. If that's the case, please use your system terminal. A TTY will also work but you may see flashes in the texts!
-If you find bugs, please let me know via (GitHub 🐙)[https://github.com/Souravgoswami/t-hangman/issues/new] or ✉️ me souravgoswami@protonmail.com
+If you find bugs, please let me know via [GitHub 🐙](https://github.com/Souravgoswami/t-hangman/issues/new) or ✉️ me souravgoswami@protonmail.com
